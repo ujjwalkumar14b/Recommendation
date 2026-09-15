@@ -144,8 +144,11 @@ def ncf_recommend(customer_id, top_n=25):
     
     u_tensor = torch.tensor([user_idx] * len(candidate_indices), dtype=torch.long)
     i_tensor = torch.tensor(candidate_indices, dtype=torch.long)
-    
-    scores = ncf_model(u_tensor, i_tensor).squeeze().numpy()
+
+    ncf_model.eval()
+    with torch.no_grad():
+        scores = ncf_model(u_tensor, i_tensor).squeeze().detach().numpy()
+        
     top_indices = scores.argsort()[::-1][:top_n]
     return [candidate_products[i] for i in top_indices]
 
