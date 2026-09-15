@@ -4,7 +4,7 @@
 
 ## Project Structure
 ```
-PickPerfect/
+Recommendation/
 |
 ├── Photo1.png  
 ├── Photo2.png  
