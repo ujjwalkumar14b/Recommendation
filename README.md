@@ -2,37 +2,12 @@
 - It recommend products based on user preference. 
 - It is done by hybrid model combining popularity, neural collaborative, content-based model.
 
-## Project Structure
-```
-Recommendation/
-|
-├── Photo1.png  
-├── Photo2.png  
-├── Photo3.png  
-├── Photo4.png  
-├── Photo5.png  
-├── Photo6.png                                   
-├── README.md                             
-├── Recommendation.ipynb 
-├── ai_score.py
-├── app.py 
-├── app_home.html  
-├── app_recommend.html 
-├── app_style.css
-├── cleaned_data.csv
-├── model_hybrid.pkl  
-├── requirements.txt
-└── xai.py
-```
-
-## Machine Learning Pipeline
-- Importing Libraries
-- Data Collection 
-- Data Preprocessing
-- Data Visualization
-- Model Training
-- Model Evaluation  
-- Model Deployment
+![Photo7](Photo7.jpg)
+![Photo8](Photo8.jpg)
+![Photo9](Photo9.jpg)
+![Photo10](Photo10.jpg)
+![Photo11](Photo11.jpg)
+![Photo12](Photo12.jpg)
 
 ## Author
 Ujjwal Kumar
