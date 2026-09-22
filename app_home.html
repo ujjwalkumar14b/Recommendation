@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PickPerfect</title>    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap">    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="app_style.css">    
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-glass py-3">
+        <div class="container">
+            <a class="navbar-brand brand-logo" href="/">
+                <span class="brand-icon-box"><i class="bi bi-stars"></i></span>
+                PickPerfect
+            </a>
+            
+            <button class="navbar-toggler border-0 text-white shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                <i class="bi bi-list fs-2"></i>
+            </button>
+            
+            <div class="collapse navbar-collapse ms-lg-4 mt-3 mt-lg-0" id="navbarSupportedContent">
+                <form class="d-flex flex-column flex-sm-row gap-2 ms-auto align-items-stretch align-items-sm-center w-100 justify-content-end" role="search" method="POST" action="/recommend">
+                    <div class="position-relative">
+                        <select name="customer_id" class="form-select custom-select" style="max-width: 100px;" required>
+                            <option value="" selected>CustomerID</option>
+                            {% if customers %}
+                                {% for cid in customers %}
+                                <option value="{{ cid }}" {% if cid == selected_customer %}selected{% endif %}>
+                                    {{ cid }}
+                                </option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="position-relative">
+                        <select name="product" class="form-select custom-select" style="max-width: 400px;" required>
+                            <option value="" selected>Select Target Product</option>
+                            {% if products %}
+                                {% for product in products %}
+                                <option value="{{ product }}" {% if product == selected_product %}selected{% endif %}>
+                                    {{ product }}
+                                </option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <button class="btn btn-search flex-shrink-0 align-self-end align-self-sm-auto" type="submit" title="Run Recommendation Engine">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <header class="hero-section">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-7">
+                    <h1 class="hero-title mb-4">
+                        Discover.<br>
+                        Predict.<br>
+                        <span class="hero-highlight">PickPerfect.</span>
+                    </h1>
+                    <!-- Main high-contrast description paragraph -->
+                    <p class="lead mb-4 pe-lg-4" style="font-size: 1.15rem; line-height: 1.75; color: black;">
+                        An intelligent product recommendation system built with advanced deep learning algorithms and collaborative filtering to deliver precision-targeted commerce suggestions.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="#models" class="btn btn-dark rounded-5 p-3">Explore Architecture</a>
+                        <a href="#evaluation" class="btn btn-light border rounded-5 p-3">View Metrics</a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-5">
+                    <div class="hero-card">
+                        <div class="d-flex align-items-center justify-content-between mb-4 border-bottom border-secondary border-opacity-25 pb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="spinner-grow spinner-grow-sm text-dark" role="status"></span>
+                                <span class="font-heading fs-7 text-uppercase tracking-wider text-white fw-bold">System Active</span>
+                            </div>
+                            <span class="badge bg-dark border border-secondary text-white">Neural Net Live</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="fs-7 mb-1 text-white opacity-75">Target Customer ID</div>
+                            <div class="font-heading fw-bold fs-4">CID-14606 <span class="fs-7 font-monospace fw-normal" style="color: #a1a1aa !important;">(High Frequency)</span></div>
+                        </div>
+
+                        <div class="p-3 rounded-3 mb-4" style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-color);">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fs-7">Top Match Recommendation</span>
+                                <span class="badge bg-white text-dark font-monospace fw-bold">98.4% Match</span>
+                            </div>
+                            <div class="fw-bold fs-6 mb-1">Regency Cakestand 3 Tier</div>
+                            <div class="fs-7" style="color: #a1a1aa !important;">Based on content similarity & MLP embeddings</div>
+                        </div>
+
+                        <div class="row g-2 text-center font-monospace fs-7">
+                            <div class="col-6">
+                                <div class="p-2 rounded border border-secondary border-opacity-25 bg-black">
+                                    <div class="fs-8 text-white opacity-75">LATENCY</div>
+                                    <div class="text-white fw-bold fs-6">12.4ms</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 rounded border border-secondary border-opacity-25 bg-black">
+                                    <div class="fs-8 text-white opacity-75">EMBEDDING</div>
+                                    <div class="text-white fw-bold fs-6">64-Dim Vector</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Section 01: Project Workflow -->
+        <section id="workflow" class="my-5 pt-4">
+            <div class="section-header">
+                <span class="section-tag">01. Architecture Pipeline</span>
+                <h2 class="section-title">Project Workflow</h2>
+            </div>
+            
+            <div class="row g-3">
+                <div class="col-md-4 col-sm-6">
+                    <div class="workflow-step">
+                        <span class="step-num">01</span>
+                        <div>
+                            <div class="fw-bold">Importing Libraries</div>
+                            <div class="fs-7">PyTorch, Pandas, Scikit</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="workflow-step">
+                        <span class="step-num">02</span>
+                        <div>
+                            <div class="fw-bold">Data Collection</div>
+                            <div class="fs-7">Ingestion & Preprocessing</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="workflow-step">
+                        <span class="step-num">03</span>
+                        <div>
+                            <div class="fw-bold">Exploratory Data Analysis</div>
+                            <div class="fs-7">Distributions & Anomalies</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="workflow-step">
+                        <span class="step-num">04</span>
+                        <div>
+                            <div class="fw-bold">Model Training</div>
+                            <div class="fs-7">NCF & Hybrid Architecture</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="workflow-step">
+                        <span class="step-num">05</span>
+                        <div>
+                            <div class="fw-bold">Model Evaluation</div>
+                            <div class="fs-7">NDCG, HitRate & MAP</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="workflow-step">
+                        <span class="step-num">06</span>
+                        <div>
+                            <div class="fw-bold">Model Serialization</div>
+                            <div class="fs-7">Deployment via Flask API</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 02: Tech Stack -->
+        <section id="techstack" class="my-5 pt-4">
+            <div class="section-header">
+                <span class="section-tag">02. Infrastructure</span>
+                <h2 class="section-title">Tech Stack & Libraries</h2>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="mono-card">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div>
+                                <h3 class="mb-0 fs-5 fw-bold">Data Science & AI</h3>
+                                <span class="fs-7">Core machine learning stack</span>
+                            </div>
+                        </div>
+                        <p class="fs-7 mb-4">Leveraging deep learning frameworks and numeric computation libraries for neural collaborative filtering.</p>
+                        <div>
+                            <span class="badge-tech">Python 3.10+</span>
+                            <span class="badge-tech">PyTorch</span>
+                            <span class="badge-tech">NumPy</span>
+                            <span class="badge-tech">Pandas</span>
+                            <span class="badge-tech">Scikit-Learn</span>
+                            <span class="badge-tech">Matplotlib</span>
+                            <span class="badge-tech">Seaborn</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mono-card">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div>
+                                <h3 class="mb-0 fs-5 fw-bold">Web Application</h3>
+                                <span class="fs-7">Production & delivery layer</span>
+                            </div>
+                        </div>
+                        <p class="fs-7 mb-4">Lightweight Flask server coupled with responsive modern frontend frameworks for seamless interaction.</p>
+                        <div>
+                            <span class="badge-tech">Flask</span>
+                            <span class="badge-tech">Bootstrap 5.3</span>
+                            <span class="badge-tech">HTML5 / CSS3</span>
+                            <span class="badge-tech">Jinja2 Templating</span>
+                            <span class="badge-tech">Git & GitHub</span>
+                            <span class="badge-tech">VS Code</span>
+                            <span class="badge-tech">Jupyter Lab</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 03: Data Collection -->
+        <section id="Data" class="my-5 pt-4">
+            <div class="section-header">
+                <span class="section-tag">03. Ingestion & Preprocessing</span>
+                <h2 class="section-title">Data Collection & Features</h2>
+            </div>
+
+            <!-- Big Stat Metrics -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-lg-3">
+                    <div class="mono-card text-center py-4">
+                        <div class="stat-value">541K+</div>
+                        <div class="stat-label fw-medium">Total Transactions</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="mono-card text-center py-4">
+                        <div class="stat-value">4.2K</div>
+                        <div class="stat-label fw-medium">Unique Customers</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="mono-card text-center py-4">
+                        <div class="stat-value">3.8K</div>
+                        <div class="stat-label fw-medium">Unique Products</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="mono-card text-center py-4">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label fw-medium">Key Dataset Attributes</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Tags Grid -->
+            <div class="mono-card">
+                <h3 class="fw-bold mb-3 fs-6 text-uppercase tracking-wider">Processed Dataset Schema Features</h3>
+                <div class="d-flex flex-wrap gap-2">
+                    <div class="feature-tag"><i class="bi bi-person-badge"></i> CustomerID</div>
+                    <div class="feature-tag"><i class="bi bi-box-seam"></i> Product</div>
+                    <div class="feature-tag"><i class="bi bi-hash"></i> Quantity</div>
+                    <div class="feature-tag"><i class="bi bi-currency-dollar"></i> Price</div>
+                    <div class="feature-tag"><i class="bi bi-receipt"></i> InvoiceNo</div>
+                    <div class="feature-tag"><i class="bi bi-qr-code"></i> StockCode</div>
+                    <div class="feature-tag"><i class="bi bi-calendar3"></i> Date</div>
+                    <div class="feature-tag"><i class="bi bi-clock"></i> Time</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 04: Exploratory Data Analysis -->
+        <section id="eda" class="my-5 pt-4">
+            <div class="section-header">
+                <span class="section-tag">04. Statistical Insights</span>
+                <h2 class="section-title">Exploratory Data Analysis</h2>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="mono-card">
+                        <div class="p-2 bg-white text-dark rounded-3 d-inline-block mb-3 fw-bold">
+                            <i class="bi bi-box-seam fs-5"></i>
+                        </div>
+                        <h3 class="fw-bold fs-5 mb-2">Quantity Distribution</h3>
+                        <p class="fs-7 mb-0">Transaction quantities reveal key purchasing frequencies, assisting in isolating standard order volume from wholesale bulk behavior.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mono-card">
+                        <div class="p-2 bg-white text-dark rounded-3 d-inline-block mb-3 fw-bold">
+                            <i class="bi bi-tags fs-5"></i>
+                        </div>
+                        <h3 class="fw-bold fs-5 mb-2">Price Distribution</h3>
+                        <p class="fs-7 mb-0">Product unit price analysis provides detailed insight into target valuation ranges and aids in detecting anomalous outliers.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mono-card">
+                        <div class="p-2 bg-white text-dark rounded-3 d-inline-block mb-3 fw-bold">
+                            <i class="bi bi-star fs-5"></i>
+                        </div>
+                        <h3 class="fw-bold fs-5 mb-2">Top Products</h3>
+                        <p class="fs-7 mb-0">Identification of frequent itemsets provides a strong baseline popularity score for collaborative filtering cold-starts.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 05: Model Training -->
+        <section id="models" class="my-5 pt-4">
+            <div class="section-header">
+                <span class="section-tag">05. Core Engine</span>
+                <h2 class="section-title">Model Training & Architecture</h2>
+            </div>
+            
+            <div class="row g-4 align-items-stretch">
+                <div class="col-lg-7">
+                    <div class="mono-card d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <span class="badge bg-white text-dark fw-bold">HYBRID MODEL</span>
+                                <span class="fs-7">Content + Collaborative</span>
+                            </div>
+                            <h3 class="fw-bold mb-3 fs-4">Hybrid Recommendation System</h3>
+                            <p class="fs-7 mb-4">
+                                Combines Neural Collaborative Filtering (NCF) with content-based feature matching to construct a highly expressive representation of user-item preferences.
+                            </p>
+                            
+                            <ul class="list-unstyled fs-7 mb-4">
+                                <li class="mb-3 d-flex align-items-start gap-2">
+                                    <i class="bi bi-check-circle-fill fs-6 mt-0.5"></i>
+                                    <span><strong>Multi-Layer Perceptron (MLP):</strong> Captures intricate non-linear relationships between customer historical embeddings and product features.</span>
+                                </li>
+                                <li class="mb-3 d-flex align-items-start gap-2">
+                                    <i class="bi bi-check-circle-fill fs-6 mt-0.5"></i>
+                                    <span><strong>Data Sparsity Mitigation:</strong> Minimizes cold-start penalties by falling back to content features when user history is sparse.</span>
+                                </li>
+                                <li class="mb-3 d-flex align-items-start gap-2">
+                                    <i class="bi bi-check-circle-fill fs-6 mt-0.5"></i>
+                                    <span><strong>High Personalization:</strong> Generates unique ranked item lists tailored specifically to individual interaction profiles.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Architecture Flow Diagram -->
+                        <div class="flow-box text-center mt-3">
+                            <div class="d-flex flex-wrap align-items-center justify-content-center gap-2 font-monospace text-white fs-7">
+                                <span>[User Embedding]</span>
+                                <i class="bi bi-plus"></i>
+                                <span>[Product Vector]</span>
+                                <i class="bi bi-arrow-right"></i>
+                                <span class="text-decoration-underline fw-bold">MLP Layers</span>
+                                <i class="bi bi-arrow-right"></i>
+                                <span class="bg-white text-dark px-2 py-1 rounded fw-bold">Ranked Scores</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="mono-card d-flex flex-column justify-content-between bg-white border-secondary">
+                        <div>
+                            <h3 class="fw-bold mb-3 fs-5">Model Specifications</h3>
+                            
+                            <div class="d-flex justify-content-between border-bottom border-secondary border-opacity-25 py-2.5 fs-7">
+                                <span class="opacity-75">Algorithm</span>
+                                <span class="font-monospace fw-bold">NCF + MLP Hybrid</span>
+                            </div>
+                            <div class="d-flex justify-content-between border-bottom border-secondary border-opacity-25 py-2.5 fs-7">
+                                <span class="opacity-75">Embedding Dimension</span>
+                                <span class="font-monospace fw-bold">64 Dimensions</span>
+                            </div>
+                            <div class="d-flex justify-content-between border-bottom border-secondary border-opacity-25 py-2.5 fs-7">
+                                <span class="opacity-75">Optimizer</span>
+                                <span class="font-monospace fw-bold">AdamW (lr=0.001)</span>
+                            </div>
+                            <div class="d-flex justify-content-between border-bottom border-secondary border-opacity-25 py-2.5 fs-7">
+                                <span class="opacity-75">Loss Function</span>
+                                <span class="font-monospace fw-bold">Binary Cross-Entropy</span>
+                            </div>
+                            <div class="d-flex justify-content-between border-bottom border-secondary border-opacity-25 py-2.5 fs-7">
+                                <span class="opacity-75">Batch Size</span>
+                                <span class="font-monospace fw-bold">256</span>
+                            </div>
+                            <div class="d-flex justify-content-between py-2.5 fs-7">
+                                <span class="opacity-75">Activation</span>
+                                <span class="font-monospace fw-bold">ReLU / Sigmoid</span>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-3 mt-4" style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-color);">
+                            <div class="fs-7 font-heading fw-bold mb-1"><i class="bi bi-info-circle me-1"></i> Optimization Note</div>
+                            <div class="fs-7">Dropout rate set at 0.2 across dense hidden layers to prevent overfitting on frequent buyers.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 06: Model Evaluation -->
+        <section id="evaluation" class="my-5 pt-4">
+            <div class="section-header">
+                <span class="section-tag">06. Performance Validation</span>
+                <h2 class="section-title">Model Evaluation Metrics</h2>
+            </div>
+            
+            <div class="row g-3">
+                <!-- Metric 1 -->
+                <div class="col-md-4 col-6">
+                    <div class="mono-card">
+                        <div class="fs-7 text-white opacity-75">Personalization</div>
+                        <div class="stat-value my-1">89.77%</div>
+                        <div class="fs-8">Uniqueness across recommendations</div>
+                        <div class="metric-progress">
+                            <div class="metric-progress-bar" style="width: 90%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric 2 -->
+                <div class="col-md-4 col-6">
+                    <div class="mono-card">
+                        <div class="fs-7 text-white opacity-75">Coverage</div>
+                        <div class="stat-value my-1">98.13%</div>
+                        <div class="fs-8">Catalog items recommended</div>
+                        <div class="metric-progress">
+                            <div class="metric-progress-bar" style="width: 98%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric 3 -->
+                <div class="col-md-4 col-6">
+                    <div class="mono-card">
+                        <div class="fs-7 text-white opacity-75">HitRate @ 10</div>
+                        <div class="stat-value my-1">4.77%</div>
+                        <div class="fs-8">Top-10 item hit probability</div>
+                        <div class="metric-progress">
+                            <div class="metric-progress-bar" style="width: 5%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric 4 -->
+                <div class="col-md-4 col-6">
+                    <div class="mono-card">
+                        <div class="fs-7 text-white opacity-75">NDCG @ 10</div>
+                        <div class="stat-value my-1">1.33%</div>
+                        <div class="fs-8">Normalized cumulative gain</div>
+                        <div class="metric-progress">
+                            <div class="metric-progress-bar" style="width: 2%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric 5 -->
+                <div class="col-md-4 col-6">
+                    <div class="mono-card">
+                        <div class="fs-7 text-white opacity-75">F1 Score</div>
+                        <div class="stat-value my-1">0.36%</div>
+                        <div class="fs-8">Harmonic mean precision/recall</div>
+                        <div class="metric-progress">
+                            <div class="metric-progress-bar" style="width: 1%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric 6 -->
+                <div class="col-md-4 col-6">
+                    <div class="mono-card">
+                        <div class="fs-7 text-white opacity-75">MAP</div>
+                        <div class="stat-value my-1">0.60</div>
+                        <div class="fs-8">Mean Average Precision score</div>
+                        <div class="metric-progress">
+                            <div class="metric-progress-bar" style="width: 60%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <div class="row align-items-center g-3">
+                <div class="col-md-6 text-center text-md-start">
+                    <div class="brand-logo fs-6 mb-1">
+                        <span class="brand-icon-box" style="width:26px; height:26px; font-size:0.8rem;">
+                            <i class="bi bi-stars"></i>
+                        </span>
+                        PickPerfect
+                    </div>
+                    <div class="fs-7">&copy; 2026 PickPerfect. Intelligent Recommendation System.</div>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <span class="badge border border-secondary text-dark font-monospace me-2">Machine Learning</span>
+                    <a href="#" class="text-decoration-none fs-7 ms-2">Back to Top <i class="bi bi-arrow-up-short"></i></a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            const root = document.documentElement;
+            const toggle = document.querySelector('.theme-toggle');
+            const savedTheme = localStorage.getItem('pickperfect-theme') || 'dark';
+
+            function applyTheme(theme) {
+                const isLight = theme === 'light';
+                root.dataset.theme = theme;
+                root.classList.toggle('dark', !isLight);
+                toggle.innerHTML = '<i class="bi ' + (isLight ? 'bi-moon-fill' : 'bi-sun-fill') + '" aria-hidden="true"></i>';
+                toggle.setAttribute('aria-label', isLight ? 'Switch to dark theme' : 'Switch to light theme');
+            }
+
+            applyTheme(savedTheme);
+            toggle.addEventListener('click', function () {
+                const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('pickperfect-theme', nextTheme);
+                applyTheme(nextTheme);
+            });
+        }());
+    </script>
+</body>
+</html>
