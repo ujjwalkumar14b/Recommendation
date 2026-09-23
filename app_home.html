@@ -31,7 +31,7 @@
                         <select name="customer_id" class="form-select custom-select" style="max-width: 150px;" required>
                             <option value="">Select CustomerID</option>
                             {% for cid in customers %}
-                            <option value="{{ cid }}" {% if cid == selected_customer %}selected{% endif %}>
+                            <option value="{{ cid }}" {% if cid|string == selected_customer|string %}selected{% endif %}>
                                 {{ cid }}
                             </option>
                             {% endfor %}
@@ -42,7 +42,7 @@
                         <select name="product" class="form-select custom-select" style="max-width: 400px;" required>
                             <option value="">Select Product</option>
                             {% for product in products %}
-                            <option value="{{ product }}" {% if product == selected_product %}selected{% endif %}>
+                            <option value="{{ product }}" {% if product|string == selected_product|string %}selected{% endif %}>
                                 {{ product }}
                             </option>
                             {% endfor %}
