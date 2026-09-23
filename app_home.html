@@ -28,28 +28,24 @@
             <div class="collapse navbar-collapse ms-lg-4 mt-3 mt-lg-0" id="navbarSupportedContent">
                 <form class="d-flex flex-column flex-sm-row gap-2 ms-auto align-items-stretch align-items-sm-center w-100 justify-content-end" role="search" method="POST" action="/recommend">
                     <div class="position-relative">
-                        <select name="customer_id" class="form-select custom-select" style="max-width: 100px;" required>
-                            <option value="" selected>CustomerID</option>
-                            {% if customers %}
-                                {% for cid in customers %}
-                                <option value="{{ cid }}" {% if cid == selected_customer %}selected{% endif %}>
-                                    {{ cid }}
-                                </option>
-                                {% endfor %}
-                            {% endif %}
+                        <select name="customer_id" class="form-select custom-select" style="max-width: 150px;" required>
+                            <option value="">Select CustomerID</option>
+                            {% for cid in customers %}
+                            <option value="{{ cid }}" {% if cid == selected_customer %}selected{% endif %}>
+                                {{ cid }}
+                            </option>
+                            {% endfor %}
                         </select>
                     </div>
 
                     <div class="position-relative">
                         <select name="product" class="form-select custom-select" style="max-width: 400px;" required>
-                            <option value="" selected>Select Target Product</option>
-                            {% if products %}
-                                {% for product in products %}
-                                <option value="{{ product }}" {% if product == selected_product %}selected{% endif %}>
-                                    {{ product }}
-                                </option>
-                                {% endfor %}
-                            {% endif %}
+                            <option value="">Select Product</option>
+                            {% for product in products %}
+                            <option value="{{ product }}" {% if product == selected_product %}selected{% endif %}>
+                                {{ product }}
+                            </option>
+                            {% endfor %}
                         </select>
                     </div>
 
