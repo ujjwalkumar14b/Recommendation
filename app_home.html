@@ -37,7 +37,7 @@
                     </div>
 
                     <div class="position-relative">
-                        <select name="product" class="form-select custom-select" style="max-width: 22rem;" required>
+                        <select name="product" class="form-select custom-select" style="max-width: 20rem;" required>
                             <option value="">Select Product</option>
                             {% for product in products %}
                             <option value="{{ product }}" {% if product == selected_product %}selected{% endif %}>{{ product }}</option>
