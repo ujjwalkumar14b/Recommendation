@@ -1,33 +1,38 @@
 import os
 import gc
-import xai
-import ai_score
 import pandas as pd
-
+import numpy as np
 from datetime import datetime
 from flask import Flask, render_template, request
+from scipy.sparse import csr_matrix
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+import xai
+import ai_score
+
 app = Flask(__name__, template_folder='.', static_folder='.', static_url_path='')
 
-# Data Preprocessing 
+# ---------------------------------------------------------
+# 1. Memory-Efficient Data Preprocessing
+# ---------------------------------------------------------
 use_cols = ["Product", "Quantity", "Price", "CustomerID", "StockCode", "Time"]
 df = pd.read_csv("data.csv", encoding="latin1", usecols=use_cols)
 
-df["StockCode"] = df["StockCode"].astype('int32')
-df["Quantity"] = df["Quantity"].astype('int16')
-df["Price"] = df["Price"].astype('float32')
-df["CustomerID"] = df["CustomerID"].astype('int32')
+# Downcast numerical types immediately
+df["StockCode"] = pd.to_numeric(df["StockCode"], errors='coerce', downcast='integer')
+df["Quantity"] = pd.to_numeric(df["Quantity"], errors='coerce', downcast='integer')
+df["Price"] = pd.to_numeric(df["Price"], errors='coerce', downcast='float')
+df["CustomerID"] = pd.to_numeric(df["CustomerID"], errors='coerce', downcast='integer')
+
+df = df.dropna(subset=["CustomerID", "Product"])
 
 train_size = int(len(df) * 0.80)
-train_df = df.iloc[:train_size]
-user_interaction_counts = train_df.groupby("CustomerID").size().to_dict()
+train_df = df.iloc[:train_size].copy()
 
-
-# CustomerID and Product
-products = sorted(df["Product"].dropna().astype(str).unique().tolist())
-customers = sorted(df["CustomerID"].dropna().astype(int).unique().tolist())
+# Store minimal structures
+products = sorted(train_df["Product"].astype(str).unique().tolist())
+customers = sorted(train_df["CustomerID"].astype(int).unique().tolist())
 DEFAULT_CUSTOMER_ID = 12347
 
 product_details = (
@@ -35,35 +40,31 @@ product_details = (
     .set_index("Product")
     .to_dict(orient="index")
 )
-
 for _product, _details in product_details.items():
     _details["price"] = float(_details.get("Price", 0))
-    _details["stockcode"] = _details.get("StockCode", "N/A")
+    _details["stockcode"] = str(_details.get("StockCode", "N/A"))
 
 del df
 gc.collect()
 
-
-# Recommendation Models
-
-### Popularity Recommendation
+# ---------------------------------------------------------
+# 2. Popularity Lookup Construction
+# ---------------------------------------------------------
 train_df_time = train_df.copy()
-train_df_time['Hour'] = pd.to_datetime(train_df_time['Time'], format='%H:%M').dt.hour
+train_df_time['Hour'] = pd.to_datetime(train_df_time['Time'], format='%H:%M', errors='coerce').dt.hour
 popular_products = train_df.groupby("Product")["Quantity"].sum().sort_values(ascending=False).index.tolist()
-hourly_popularity = {}
 
+hourly_popularity = {}
 for hour in range(24):
     hour_data = train_df_time[train_df_time['Hour'] == hour]
     if not hour_data.empty:
-        popular_in_hour = (
-            hour_data.groupby("Product")["Quantity"]
-            .sum()
-            .sort_values(ascending=False)
-            .index.tolist()
-        )
+        popular_in_hour = hour_data.groupby("Product")["Quantity"].sum().sort_values(ascending=False).index.tolist()
         hourly_popularity[hour] = popular_in_hour
     else:
         hourly_popularity[hour] = popular_products
+
+del train_df_time
+gc.collect()
 
 def popular_recommend(target_time=None, top_n=25):
     if target_time is None:
@@ -71,107 +72,105 @@ def popular_recommend(target_time=None, top_n=25):
     elif isinstance(target_time, int):
         hour = target_time
     elif isinstance(target_time, str):
-        hour = pd.to_datetime(target_time, format='%H:%M').hour
+        try:
+            hour = pd.to_datetime(target_time, format='%H:%M').hour
+        except Exception:
+            hour = datetime.now().hour
     elif isinstance(target_time, datetime):
         hour = target_time.hour
     else:
         hour = datetime.now().hour
-        
     return hourly_popularity.get(hour, popular_products)[:top_n]
 
+# ---------------------------------------------------------
+# 3. Sparse User-Item Matrix (Replaces pivot_table & Dense Similarities)
+# ---------------------------------------------------------
+user_categories = pd.CategoricalDtype(categories=customers, ordered=True)
+product_categories = pd.CategoricalDtype(categories=products, ordered=True)
 
-### User Item Matrix 
-user_item = train_df.pivot_table(index="CustomerID", columns="Product", values="Quantity", aggfunc="sum", fill_value=0)
-user_similarity = cosine_similarity(user_item)
-item_similarity = cosine_similarity(user_item.T)
-user_similarity_df = pd.DataFrame(user_similarity, index = user_item.index, columns = user_item.index)
-item_similarity_df = pd.DataFrame(item_similarity, index = user_item.columns, columns = user_item.columns)
+row = train_df["CustomerID"].astype(user_categories).cat.codes
+col = train_df["Product"].astype(product_categories).cat.codes
 
-### User Based Collaborative Recommendation
-def user_based_recommend(customer_id, top_n = 25):
-    if customer_id not in user_item.index:
-        return []
-
-    similar_users = (user_similarity_df[customer_id].sort_values(ascending=False).iloc[1:6].index)
-    purchased = (user_item.loc[customer_id])
-    purchased = (purchased[purchased > 0].index)
-
-    scores = {}
-    for user in similar_users:
-        items = user_item.loc[user]
-        for product in items[items > 0].index:
-            if product not in purchased:
-                scores[product] = (scores.get(product, 0) + items[product])
-
-    scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-    return [x[0] for x in scores[:top_n]]
-
-
-user_similarity_df = user_similarity_df.astype('float32')
-user_similarity_df.index = user_similarity_df.index.astype(object)
-user_similarity_df.columns = user_similarity_df.columns.astype(object)
-
-### Item Based Collaborative Recommendation
-def item_based_recommend(product, top_n = 25):
-    if product not in item_similarity_df.index:
-        return []
-
-    return (item_similarity_df[product].sort_values(ascending=False).iloc[1:top_n+1].index.tolist())
-
-
-item_similarity_df = item_similarity_df.astype('float32')
-item_similarity_df.index = item_similarity_df.index.astype(object)
-item_similarity_df.columns = item_similarity_df.columns.astype(object)
-
-
-### Content Based Recommendation
-product_data = (train_df[['Product']].drop_duplicates().reset_index(drop=True))
-tfidf = TfidfVectorizer(stop_words='english')
-tfidf_matrix = tfidf.fit_transform(product_data['Product'])
-content_similarity = cosine_similarity(tfidf_matrix)
-
-content_similarity_df = pd.DataFrame(
-    content_similarity,
-    index=product_data['Product'],
-    columns=product_data['Product']
+user_item_sparse = csr_matrix(
+    (train_df["Quantity"].values, (row, col)),
+    shape=(len(customers), len(products)),
+    dtype=np.float32
 )
-product_to_tfidf_idx = {product: idx for idx, product in enumerate(product_data['Product'])}
 
-def content_recommend(product, top_n = 25):
-    if product not in content_similarity_df.index:
-        return []
+user_to_idx = {c: i for i, c in enumerate(customers)}
+product_to_idx = {p: i for i, p in enumerate(products)}
+idx_to_product = {i: p for i, p in enumerate(products)}
 
-    return (
-        content_similarity_df[product]
-        .sort_values(ascending=False)
-        .iloc[1:top_n+1]
-        .index
-        .tolist()
-    )
-
-
-content_similarity_df = content_similarity_df.astype('float32')
-content_similarity_df.index = content_similarity_df.index.astype(object)
-content_similarity_df.columns = content_similarity_df.columns.astype(object)
-
-
-### Hybrid Recommendation
-user_interaction_counts = train_df.groupby("CustomerID")["Product"].nunique().to_dict()
+# User Interaction Lookup
 user_purchased_items = train_df.groupby("CustomerID")["Product"].apply(set).to_dict()
 
-def hybrid_recommend(product=None, customer_id=None, target_time=None, top_n=25, candidate_k=25, low_interaction_threshold=5):
-    weights = {"popular": 0.05, "user_cf": 0.05, "item_cf": 0.40, "content": 0.50}
+# ---------------------------------------------------------
+# 4. Content-Based TF-IDF (Sparse Vectorizer)
+# ---------------------------------------------------------
+product_series = pd.Series(products)
+tfidf = TfidfVectorizer(stop_words='english', max_features=5000)
+tfidf_matrix = tfidf.fit_transform(product_series).astype(np.float32)
 
+del train_df
+gc.collect()
+
+# ---------------------------------------------------------
+# 5. On-Demand Recommendation Functions
+# ---------------------------------------------------------
+def user_based_recommend(customer_id, top_n=25):
+    if customer_id not in user_to_idx:
+        return []
+    u_idx = user_to_idx[customer_id]
+    user_vec = user_item_sparse[u_idx]
+    
+    # Compute similarity against all users only for this user
+    similarities = cosine_similarity(user_vec, user_item_sparse).flatten()
+    top_users = np.argsort(similarities)[::-1][1:6]
+    purchased_indices = set(user_vec.indices)
+    
+    scores = {}
+    for other_u in top_users:
+        sim = similarities[other_u]
+        if sim <= 0:
+            continue
+        other_items = user_item_sparse[other_u]
+        for prod_idx, qty in zip(other_items.indices, other_items.data):
+            if prod_idx not in purchased_indices:
+                scores[prod_idx] = scores.get(prod_idx, 0.0) + (sim * qty)
+                
+    sorted_prods = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:top_n]
+    return [idx_to_product[idx] for idx, _ in sorted_prods]
+
+def item_based_recommend(product, top_n=25):
+    if product not in product_to_idx:
+        return []
+    p_idx = product_to_idx[product]
+    item_vec = user_item_sparse.getcol(p_idx).T
+    
+    similarities = cosine_similarity(item_vec, user_item_sparse.T).flatten()
+    top_items = np.argsort(similarities)[::-1][1:top_n+1]
+    return [idx_to_product[idx] for idx in top_items]
+
+def content_recommend(product, top_n=25):
+    if product not in product_to_idx:
+        return []
+    p_idx = product_to_idx[product]
+    prod_vec = tfidf_matrix[p_idx]
+    
+    similarities = cosine_similarity(prod_vec, tfidf_matrix).flatten()
+    top_items = np.argsort(similarities)[::-1][1:top_n+1]
+    return [idx_to_product[idx] for idx in top_items]
+
+def hybrid_recommend(product=None, customer_id=None, target_time=None, top_n=25, candidate_k=25):
+    weights = {"popular": 0.05, "user_cf": 0.05, "item_cf": 0.40, "content": 0.50}
     recs = {
         "popular": popular_recommend(target_time=target_time, top_n=candidate_k) if weights["popular"] > 0 else [],
         "user_cf": user_based_recommend(customer_id, top_n=candidate_k) if weights["user_cf"] > 0 and customer_id else [],
         "item_cf": item_based_recommend(product, top_n=candidate_k) if weights["item_cf"] > 0 and product else [],
         "content": content_recommend(product, top_n=candidate_k) if weights["content"] > 0 and product else [],
     }
-
     candidate_scores = {}
     purchased = user_purchased_items.get(customer_id, set())
-
     for model_name, item_list in recs.items():
         w = weights[model_name]
         if w == 0:
@@ -179,106 +178,88 @@ def hybrid_recommend(product=None, customer_id=None, target_time=None, top_n=25,
         for rank, item in enumerate(item_list):
             if item in purchased:
                 continue
-
             score = w * (1.0 / (rank + 60))
             candidate_scores[item] = candidate_scores.get(item, 0.0) + score
-
     sorted_candidates = sorted(candidate_scores.items(), key=lambda x: x[1], reverse=True)
     final_recs = [item for item, _ in sorted_candidates[:top_n]]
-
- 
     if len(final_recs) < top_n:
         for item in popular_recommend(target_time=target_time, top_n=top_n * 2):
             if item not in final_recs and item not in purchased:
                 final_recs.append(item)
             if len(final_recs) == top_n:
                 break
-
     return final_recs
 
-# Model Weights Scoring 
+# ---------------------------------------------------------
+# 6. Optimized Model Weights Scoring Functions
+# ---------------------------------------------------------
 def get_popular_score(product):
     if product in popular_products:
         rank = popular_products.index(product)
         return max(0.0, 1.0 - (rank / len(popular_products)))
     return 0.0
 
-
 def get_user_cf_score(customer_id, product):
-    if customer_id is None or product is None:
+    if customer_id is None or product is None or customer_id not in user_to_idx or product not in product_to_idx:
         return 0.0
-    if customer_id not in user_item.index or product not in user_item.columns:
-        return 0.0
-
-    ranked_users = user_similarity_df[customer_id].sort_values(ascending=False)
-    ranked_users = ranked_users[ranked_users.index != customer_id]
-    if ranked_users.empty:
-        return 0.0
-
+    u_idx = user_to_idx[customer_id]
+    p_idx = product_to_idx[product]
+    
+    user_vec = user_item_sparse[u_idx]
+    similarities = cosine_similarity(user_vec, user_item_sparse).flatten()
+    top_users = np.argsort(similarities)[::-1][1:6]
+    
     contributions = []
     weights = []
-    for other_user, similarity in ranked_users.head(5).items():
-        similarity = float(similarity)
-        if similarity <= 0:
+    for other_u in top_users:
+        sim = float(similarities[other_u])
+        if sim <= 0:
             continue
-        other_purchases = user_item.loc[other_user]
-        if product not in other_purchases.index:
-            continue
-        qty = float(other_purchases[product])
+        qty = float(user_item_sparse[other_u, p_idx])
         if qty <= 0:
             continue
-        contributions.append(similarity * qty)
-        weights.append(abs(similarity))
-
+        contributions.append(sim * qty)
+        weights.append(abs(sim))
+        
     if not contributions:
         return 0.0
-
-    numerator = sum(contributions)
-    denominator = sum(weights) if sum(weights) > 0 else 1.0
-    return float(min(1.0, numerator / denominator))
-
+    return float(min(1.0, sum(contributions) / (sum(weights) if sum(weights) > 0 else 1.0)))
 
 def get_item_cf_score(customer_id, product):
-    if customer_id is None or product is None:
+    if customer_id is None or product is None or customer_id not in user_to_idx or product not in product_to_idx:
         return 0.0
-    if customer_id not in user_item.index or product not in item_similarity_df.index:
+    u_idx = user_to_idx[customer_id]
+    p_idx = product_to_idx[product]
+    
+    purchased_indices = user_item_sparse[u_idx].indices
+    if len(purchased_indices) == 0:
         return 0.0
-
-    purchased = user_item.loc[customer_id]
-    purchased_products = purchased[purchased > 0].index.tolist()
-    if not purchased_products:
-        return 0.0
-
+        
+    item_vec = user_item_sparse.getcol(p_idx).T
+    similarities = cosine_similarity(item_vec, user_item_sparse.T).flatten()
+    
     strengths = []
     weights = []
-    for purchased_product in purchased_products:
-        if purchased_product == product:
+    for p_other_idx in purchased_indices:
+        if p_other_idx == p_idx:
             continue
-        if purchased_product not in item_similarity_df.index:
+        sim = float(similarities[p_other_idx])
+        if sim <= 0:
             continue
-        similarity = float(item_similarity_df.loc[purchased_product, product])
-        if similarity <= 0:
-            continue
-        qty = float(purchased[purchased_product])
-        strengths.append(similarity * qty)
-        weights.append(abs(similarity) * qty)
-
+        qty = float(user_item_sparse[u_idx, p_other_idx])
+        strengths.append(sim * qty)
+        weights.append(abs(sim) * qty)
+        
     if not strengths:
         return 0.0
-
-    numerator = sum(strengths)
-    denominator = sum(weights) if sum(weights) > 0 else 1.0
-    return float(min(1.0, numerator / denominator))
-
+    return float(min(1.0, sum(strengths) / (sum(weights) if sum(weights) > 0 else 1.0)))
 
 def get_content_score(reference_product, product):
-    if not reference_product or not product:
+    if not reference_product or not product or reference_product not in product_to_idx or product not in product_to_idx:
         return 0.0
-    if reference_product in product_to_tfidf_idx and product in product_to_tfidf_idx:
-        idx1 = product_to_tfidf_idx[reference_product]
-        idx2 = product_to_tfidf_idx[product]
-        return float(cosine_similarity(tfidf_matrix[idx1], tfidf_matrix[idx2])[0][0])
-    return 0.0
+    idx1 = product_to_idx[reference_product]
+    idx2 = product_to_idx[product]
+    return float(cosine_similarity(tfidf_matrix[idx1], tfidf_matrix[idx2])[0][0])
 
 ai_score.configure(
     popular_fn=get_popular_score,
@@ -298,6 +279,9 @@ def update_product_details_ai(product_list, customer_id=None, reference_product=
             product_details[prod]["ai_score"] = score_res["final_ai_score"]
             product_details[prod]["explanation"] = xai.explain(score_res)
 
+# ---------------------------------------------------------
+# 7. Flask Routes
+# ---------------------------------------------------------
 @app.route("/")
 def home():
     return render_template(
