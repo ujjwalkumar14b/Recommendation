@@ -1,32 +1,22 @@
-# PickPerfect - Product Recommendation System
-- It recommend products based on user preference. 
-- It is done by hybrid model combining popularity, neural collaborative, content-based model.
+# Product Recommendation System
 
-## Project Structure
-```
-Recommendation/
-|                                 
-├── README.md                             
-├── Recommendation.ipynb 
-├── home.html  
-├── recommend.html 
-├── style.css
-├── ai_score.py
-├── app.py 
-├── xai.py
-├── data.csv
-├── model_hybrid.pkl  
-└── requirements.txt
-```
+Problem Statement: Digital commerce containing thousands or even millions of products, leads to information overload and no personalization
 
-## Machine Learning Pipeline
-- Importing Libraries
-- Data Collection 
-- Data Preprocessing
-- Data Visualization
-- Model Training
-- Model Evaluation  
-- Model Deployment
+Solution: An end-to-end Machine Learning project designed to recommend products based on user preference by hybrid model combining time aware popularity, user-based and item-based collaborative filtering, content-based filtering model.
+
+![Deployment](deployment.png)
+
+## Tech Stack
+- Data Science: NumPy, Pandas, Matplotlib, Seaborn, Scikit-Learn
+- Machine Learning: Collaborative Filtering, Content-based Filtering, PyTorch.
+- Deployment: HTML5, CSS3, Bootstrap, Git, GitHub and Render Platform.
+
+## Setup Installation
+```
+pip install pandas numpy matplotlib seaborn scikit-learn joblib
+git clone https://github.com/ujjwalkumar14b/Recommendation.git
+cd Recommendation
+```
 
 ## Author
 Ujjwal Kumar
