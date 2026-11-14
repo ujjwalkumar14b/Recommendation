@@ -1,0 +1,1 @@
+"""Flask recommendation service package."""
