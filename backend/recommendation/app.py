@@ -6,7 +6,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, request
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -453,69 +453,6 @@ def api_recommendations():
             "product": selected_product,
             "recommendations": result,
         }
-    )
-
-
-@app.route("/")
-def home():
-    return render_template(
-        "home.html",
-        products=products,
-        customers=customers,
-        selected_customer=DEFAULT_CUSTOMER_ID,
-        selected_product=None,
-        popular_recommendations=[],
-        user_cf_recommendations=[],
-        item_cf_recommendations=[],
-        content_recommendations=[],
-        hybrid_recommendations=[],
-        product_details=product_details,
-    )
-
-
-@app.route("/recommend", methods=["POST"])
-def recommend():
-    selected_product = request.form.get("product")
-    selected_customer = request.form.get("customer_id", DEFAULT_CUSTOMER_ID)
-    customer_id = int(selected_customer) if selected_customer else None
-
-    popular_recommendations = popular_recommend(top_n=25)
-    user_cf_recommendations = (
-        user_based_recommend(customer_id, top_n=25) if customer_id else []
-    )
-    item_cf_recommendations = (
-        item_based_recommend(selected_product, top_n=25) if selected_product else []
-    )
-    content_recommendations = (
-        content_recommend(selected_product, top_n=25) if selected_product else []
-    )
-    hybrid_recommendations = hybrid_recommend(
-        product=selected_product, customer_id=customer_id, top_n=25
-    )
-
-    all_recs = set(
-        popular_recommendations
-        + user_cf_recommendations
-        + item_cf_recommendations
-        + content_recommendations
-        + hybrid_recommendations
-    )
-    update_product_details_ai(
-        all_recs, customer_id=customer_id, reference_product=selected_product
-    )
-
-    return render_template(
-        "recommend.html",
-        products=products,
-        customers=customers,
-        selected_customer=customer_id,
-        selected_product=selected_product,
-        popular_recommendations=popular_recommendations,
-        user_cf_recommendations=user_cf_recommendations,
-        item_cf_recommendations=item_cf_recommendations,
-        content_recommendations=content_recommendations,
-        hybrid_recommendations=hybrid_recommendations,
-        product_details=product_details,
     )
 
 
