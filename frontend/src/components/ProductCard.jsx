@@ -10,6 +10,9 @@ function hueFromCode(code) {
 }
 
 export default function ProductCard({ product, onAdded, recommendation = false }) {
+  if (!product) {
+    return null;
+  }
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
