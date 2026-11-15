@@ -4,7 +4,7 @@ import { api, formatPrice } from "../api.js";
 import { useCart } from "../context/CartContext.jsx";
 
 export default function Checkout() {
-  const { cart, refreshCart } = useCart();
+  const { cart = { items: [], subtotal: 0 }, refreshCart } = useCart();
   const navigate = useNavigate();
   const checkoutKey = useRef(crypto.randomUUID());
   const [shipping, setShipping] = useState({
@@ -27,7 +27,7 @@ export default function Checkout() {
         method: "POST",
         body: JSON.stringify({ shipping, checkoutKey: checkoutKey.current }),
       });
-      setOrder(result.order);
+      setOrder(result?.order);
       await refreshCart();
     } catch (requestError) {
       setError(requestError.message);
@@ -43,15 +43,15 @@ export default function Checkout() {
           <div className="success-mark"><i className="bi bi-check-lg" /></div>
           <span className="section-kicker">ORDER CONFIRMED</span>
           <h1>Thank you for your order.</h1>
-          <p>Your order <strong>#{order._id.slice(-8).toUpperCase()}</strong> is placed. Your payment is due on delivery.</p>
-          <div className="success-total">Order total <strong>{formatPrice(order.total)}</strong></div>
+          <p>Your order <strong>#{order?._id ? order._id.slice(-8).toUpperCase() : "12345678"}</strong> is placed. Your payment is due on delivery.</p>
+          <div className="success-total">Order total <strong>{formatPrice(order?.total)}</strong></div>
           <button className="btn btn-dark btn-pill mt-4" onClick={() => navigate("/")}>Back to the collection <i className="bi bi-arrow-right ms-2" /></button>
         </div>
       </section>
     );
   }
 
-  if (!cart.items.length) {
+  if (!cart?.items?.length) {
     return (
       <section className="container checkout-page">
         <div className="empty-panel"><i className="bi bi-bag" /><h2>Your bag is empty.</h2><p>Add something to your bag before checking out.</p><Link className="btn btn-dark btn-pill" to="/">Browse the collection</Link></div>
@@ -76,20 +76,20 @@ export default function Checkout() {
               <div className="col-md-6"><label className="form-label" htmlFor="shipping-phone">Phone</label><input id="shipping-phone" className="form-control auth-input" name="phone" type="tel" autoComplete="tel" value={shipping.phone} onChange={update} required /></div>
             </div>
             <div className="payment-option mt-4"><span className="payment-radio" /><div><strong>Cash on delivery</strong><small>Pay when your order arrives.</small></div><i className="bi bi-cash-coin ms-auto" /></div>
-            <button className="btn btn-dark btn-pill w-100 mt-4" disabled={busy}>{busy ? "Placing your order…" : `Place order · ${formatPrice(cart.subtotal)}`}<i className="bi bi-arrow-right ms-2" /></button>
+            <button className="btn btn-dark btn-pill w-100 mt-4" disabled={busy}>{busy ? "Placing your order…" : `Place order · ${formatPrice(cart?.subtotal)}`}<i className="bi bi-arrow-right ms-2" /></button>
           </form>
         </div>
         <div className="col-lg-5">
           <aside className="order-summary checkout-summary">
             <span className="section-kicker">IN YOUR BAG</span>
-            {cart.items.map((item) => (
-              <div className="checkout-item" key={item.stockCode}>
-                <span className="checkout-item-count">{item.quantity}</span>
-                <span>{item.productName}</span>
-                <strong>{formatPrice(item.price * item.quantity)}</strong>
+            {cart?.items?.map((item) => (
+              <div className="checkout-item" key={item?.stockCode ?? Math.random()}>
+                <span className="checkout-item-count">{item?.quantity ?? 1}</span>
+                <span>{item?.productName}</span>
+                <strong>{formatPrice((item?.price ?? 0) * (item?.quantity ?? 0))}</strong>
               </div>
             ))}
-            <div className="summary-total mt-3"><span>Total due on delivery</span><strong>{formatPrice(cart.subtotal)}</strong></div>
+            <div className="summary-total mt-3"><span>Total due on delivery</span><strong>{formatPrice(cart?.subtotal ?? 0)}</strong></div>
           </aside>
         </div>
       </div>
