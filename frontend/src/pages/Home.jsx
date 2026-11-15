@@ -38,48 +38,11 @@ export default function Home() {
 
   return (
     <>
-      <section className="hero-wrap">
-        <div className="container">
-          <div className="hero-panel row g-0 align-items-stretch">
-            <div className="col-lg-7 hero-copy">
-              <div className="eyebrow"><span className="eyebrow-dot" /> GOOD FINDS, BETTER FIT</div>
-              <h1>Find the little things<br />that feel <span>just right.</span></h1>
-              <p>
-                Discover thoughtful finds, then let our recommendation engine uncover
-                something you might love next.
-              </p>
-              <div className="d-flex flex-wrap gap-3 align-items-center">
-                <a className="btn btn-dark btn-pill" href="#collection">
-                  Explore the collection <i className="bi bi-arrow-down-right ms-2" />
-                </a>
-                <span className="hero-proof"><i className="bi bi-stars me-1" /> Recommendations you can understand</span>
-              </div>
-            </div>
-            <div className="col-lg-5 hero-art">
-              <div className="hero-orbit orbit-one" />
-              <div className="hero-orbit orbit-two" />
-              <div className="hero-object hero-object-main"><i className="bi bi-flower1" /></div>
-              <div className="hero-object hero-object-small"><i className="bi bi-cup-hot" /></div>
-              <div className="hero-sticker"><i className="bi bi-sparkle" /> picked for you</div>
-              <div className="hero-caption">Everyday pieces<br />with a little extra.</div>
-            </div>
-          </div>
-          <div className="value-strip row g-0">
-            <div className="col-md-4 value-item"><span>01</span><div><strong>Thoughtful discovery</strong><small>Explore a curated catalogue</small></div></div>
-            <div className="col-md-4 value-item"><span>02</span><div><strong>Made personal</strong><small>Recommendations from your search</small></div></div>
-            <div className="col-md-4 value-item"><span>03</span><div><strong>Clear by design</strong><small>See why a product was suggested</small></div></div>
-          </div>
-        </div>
-      </section>
-
       <section className="collection-section container" id="collection">
         <div className="section-heading d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-3">
           <div>
             <span className="section-kicker">THE COLLECTION</span>
-            <h2>Everyday favourites</h2>
-            <p>Distinct finds from the PickPerfect catalogue.</p>
           </div>
-          {/* Safely format total with fallback to 0 */}
           <span className="catalog-count">{(result?.total ?? 0).toLocaleString("en-IN")} products</span>
         </div>
         {notice && <div className="toast-note"><i className="bi bi-check-circle me-2" />{notice}</div>}
@@ -109,11 +72,6 @@ export default function Home() {
             )}
           </>
         )}
-        <div className="recommendation-callout">
-          <div className="callout-star"><i className="bi bi-stars" /></div>
-          <div><h3>Looking for something in particular?</h3><p>Search a product above and see your top 25 explainable recommendations.</p></div>
-          <Link to="/register" className="btn btn-outline-dark btn-pill ms-md-auto">Join PickPerfect <i className="bi bi-arrow-up-right ms-2" /></Link>
-        </div>
       </section>
     </>
   );
