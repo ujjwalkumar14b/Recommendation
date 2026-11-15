@@ -17,8 +17,11 @@ PickPerfect is MERN-based ecommerce website which allow users to browse all prod
 
 ### 1. Recommendation Backend
 ```
+py -3.12 -m venv .venv  
+.\.venv\Scripts\Activate.ps1  
+cd backend
 pip install -r requirements.txt
-python -m backend.recommendation.app
+python -m recommendation.app
 ```
 
 ### 2. Backend
