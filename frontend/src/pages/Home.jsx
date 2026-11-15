@@ -33,7 +33,8 @@ export default function Home() {
     window.setTimeout(() => setNotice(""), 2200);
   }
 
-  const pageCount = Math.ceil(result.total / result.perPage);
+  // Safely calculate page count with optional chaining and fallback
+  const pageCount = Math.ceil((result?.total ?? 0) / (result?.perPage ?? 24));
 
   return (
     <>
@@ -78,7 +79,8 @@ export default function Home() {
             <h2>Everyday favourites</h2>
             <p>Distinct finds from the PickPerfect catalogue.</p>
           </div>
-          <span className="catalog-count">{result.total.toLocaleString("en-IN")} products</span>
+          {/* Safely format total with fallback to 0 */}
+          <span className="catalog-count">{(result?.total ?? 0).toLocaleString("en-IN")} products</span>
         </div>
         {notice && <div className="toast-note"><i className="bi bi-check-circle me-2" />{notice}</div>}
         {error && <div className="alert alert-danger">{error}</div>}
@@ -87,13 +89,13 @@ export default function Home() {
         ) : (
           <>
             <div className="row g-4">
-              {result.items.map((product) => (
-                <div className="col-6 col-md-4 col-xl-3" key={product.stockCode}>
+              {result?.items?.map((product, index) => (
+                <div className="col-6 col-md-4 col-xl-3" key={product?.stockCode ?? index}>
                   <ProductCard product={product} onAdded={onAdded} />
                 </div>
               ))}
             </div>
-            {!result.items.length && <div className="empty-state">No products found in the catalogue.</div>}
+            {!result?.items?.length && <div className="empty-state">No products found in the catalogue.</div>}
             {pageCount > 1 && (
               <nav className="catalog-pagination" aria-label="Product pages">
                 <button className="btn btn-page" disabled={page === 1} onClick={() => setPage(page - 1)}>
