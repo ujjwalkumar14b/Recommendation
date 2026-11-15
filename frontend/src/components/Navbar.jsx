@@ -59,10 +59,7 @@ export default function Navbar() {
   return (
     <nav className="navbar navbar-expand-lg navbar-light navbar-glass sticky-top">
       <div className="container py-2">
-        <Link className="navbar-brand brand-logo" to="/">
-          <span className="brand-icon"><i className="bi bi-stars" /></span>
-          PickPerfect
-        </Link>
+        <Link className="navbar-brand brand-logo" to="/">PickPerfect</Link>
         <button
           className="navbar-toggler border-0 shadow-none"
           type="button"
