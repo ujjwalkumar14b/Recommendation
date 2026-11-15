@@ -54,13 +54,13 @@ export default function Recommendations() {
       {!loading && data && (
         <>
           <div className="result-bar">
-            <div><strong>{data.recommendations.length} recommendations</strong><span>Ranked by the hybrid recommendation model</span></div>
+            <div><strong>{data?.recommendations?.length ?? 0} recommendations</strong><span>Ranked by the hybrid recommendation model</span></div>
             <span className="model-chip"><i className="bi bi-cpu me-1" /> HYBRID · TOP 25</span>
           </div>
-          {data.recommendations.length ? (
+          {data?.recommendations?.length ? (
             <div className="row g-4">
               {data.recommendations.map((item, index) => (
-                <div className="col-6 col-md-4 col-xl-3" key={`${item.stockCode}-${index}`}>
+                <div className="col-6 col-md-4 col-xl-3" key={`${item?.stockCode ?? index}-${index}`}>
                   <ProductCard product={item} recommendation onAdded={onAdded} />
                 </div>
               ))}
