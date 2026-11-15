@@ -39,26 +39,26 @@ export default function Cart() {
       <div className="page-title-row"><div><span className="section-kicker">A FEW GOOD FINDS</span><h1>Your bag <span>{cart.itemCount || 0}</span></h1></div><Link to="/" className="continue-link"><i className="bi bi-arrow-left me-2" />Continue shopping</Link></div>
       {error && <div className="alert alert-danger">{error}</div>}
       {actionError && <div className="alert alert-danger">{actionError}</div>}
-      {cart.items.length ? (
+      {cart?.items?.length ? (
         <div className="row g-5">
           <div className="col-lg-8">
             <div className="bag-items">
               {cart.items.map((item) => (
-                <article className="bag-item" key={item.stockCode}>
+                <article className="bag-item" key={item?.stockCode ?? Math.random()}>
                   <div className="bag-item-art"><i className="bi bi-box-seam" /></div>
                   <div className="bag-item-details">
-                    <span className="product-code">PRODUCT #{item.stockCode}</span>
+                    <span className="product-code">PRODUCT #{item?.stockCode}</span>
                     <h2>{item.productName}</h2>
-                    <span className="bag-item-price">{formatPrice(item.price)}</span>
+                    <span className="bag-item-price">{formatPrice(item?.price)}</span>
                   </div>
                   <div className="bag-item-controls">
-                    <label className="visually-hidden" htmlFor={`quantity-${item.stockCode}`}>Quantity</label>
-                    <select id={`quantity-${item.stockCode}`} className="form-select quantity-select" value={item.quantity} onChange={(event) => updateQuantity(item, event.target.value)}>
+                    <label className="visually-hidden" htmlFor={`quantity-${item?.stockCode}`}>Quantity</label>
+                    <select id={`quantity-${item?.stockCode}`} className="form-select quantity-select" value={item?.quantity ?? 1} onChange={(event) => updateQuantity(item, event.target.value)}>
                       {Array.from({ length: 99 }, (_, index) => index + 1).map((quantity) => <option key={quantity} value={quantity}>{quantity}</option>)}
                     </select>
                     <button className="remove-button" type="button" onClick={() => removeItem(item)}>Remove</button>
                   </div>
-                  <strong className="bag-line-total">{formatPrice(item.price * item.quantity)}</strong>
+                  <strong className="bag-line-total">{formatPrice((item?.price ?? 0) * (item?.quantity ?? 0))}</strong>
                 </article>
               ))}
             </div>
@@ -66,9 +66,9 @@ export default function Cart() {
           <div className="col-lg-4">
             <aside className="order-summary">
               <span className="section-kicker">ORDER SUMMARY</span>
-              <div className="summary-row"><span>Subtotal</span><strong>{formatPrice(cart.subtotal)}</strong></div>
+              <div className="summary-row"><span>Subtotal</span><strong>{formatPrice(cart?.subtotal ?? 0)}</strong></div>
               <div className="summary-row"><span>Shipping</span><strong>Calculated at checkout</strong></div>
-              <div className="summary-total"><span>Total</span><strong>{formatPrice(cart.subtotal)}</strong></div>
+              <div className="summary-total"><span>Total</span><strong>{formatPrice(cart?.subtotal ?? 0)}</strong></div>
               <p className="summary-note"><i className="bi bi-shield-check me-2" />Payment is collected on delivery.</p>
               <button className="btn btn-dark btn-pill w-100" onClick={() => navigate("/checkout")}>
                 Continue to checkout <i className="bi bi-arrow-right ms-2" />
