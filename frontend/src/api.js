@@ -16,9 +16,12 @@ export async function api(path, options = {}) {
 }
 
 export function formatPrice(value) {
+  const numericValue = Number(value);
+  const safeValue = Number.isNaN(numericValue) ? 0 : numericValue;
+
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(safeValue);
 }
