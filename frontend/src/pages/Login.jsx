@@ -32,30 +32,9 @@ export default function Login() {
         <h1>Good to see you.</h1>
         {error && <div className="alert alert-danger py-2">{error}</div>}
         <form onSubmit={submit}>
-          <label className="form-label" htmlFor="login-customer-id">CustomerID</label>
-          <input
-            id="login-customer-id"
-            className="form-control form-control-lg auth-input"
-            type="number"
-            min="1"
-            step="1"
-            autoComplete="username"
-            placeholder="Enter your CustomerID"
-            value={customerId}
-            onChange={(event) => setCustomerId(event.target.value)}
-            required
-          />
-          <label className="form-label mt-3" htmlFor="login-password">Password</label>
-          <input
-            id="login-password"
-            className="form-control form-control-lg auth-input"
-            type="password"
-            autoComplete="current-password"
-            placeholder="At least 8 characters"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
+          <input className="mt-3 form-control auth-input" type="number" name="customerId" autoComplete="username" value={customerId} onChange={(event) => setCustomerId(event.target.value)} placeholder="Enter your CustomerID" required />
+          <input className="mt-3 form-control auth-input" type="password" name="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your password" required />
+        
           <button className="btn btn-dark btn-pill w-100 mt-4" disabled={busy}>
             {busy ? "Signing in…" : "Sign in"} <i className="bi bi-arrow-right ms-2" />
           </button>
