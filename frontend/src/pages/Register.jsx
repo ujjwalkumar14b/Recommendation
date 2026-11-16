@@ -28,7 +28,7 @@ export default function Register() {
   }
 
   return (
-    <section className="auth-page container text-center">
+    <section className="container text-center">
       <div className="auth-card">
         <span className="section-kicker">JOIN PICKPERFECT</span>
         <h1>Make it personal.</h1>
