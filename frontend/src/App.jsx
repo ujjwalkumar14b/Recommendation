@@ -31,8 +31,7 @@ export default function App() {
       </main>
       <footer className="site-footer">
         <div className="container d-flex flex-column flex-md-row justify-content-between gap-2">
-          <span><i className="bi bi-stars me-2" />PickPerfect — thoughtful finds, picked for you.</span>
-          <span>Powered by explainable recommendations</span>
+          <span className="text-center">PickPerfect — E-commerce Website Powered by explainable recommendations.</span>
         </div>
       </footer>
     </>
