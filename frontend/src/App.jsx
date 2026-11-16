@@ -30,8 +30,8 @@ export default function App() {
         </Routes>
       </main>
       <footer className="site-footer">
-        <div className="container d-flex flex-column flex-md-row justify-content-between gap-2">
-          <span className="text-center">PickPerfect — E-commerce Website Powered by explainable recommendations.</span>
+        <div className="container text-center">
+          <span>PickPerfect — E-commerce Website Powered by Explainable Recommendations.</span>
         </div>
       </footer>
     </>
