@@ -27,7 +27,7 @@ export default function Login() {
 
   return (
     <section className="container text-center">
-      <div className="auth-card">
+      <div className="auth-card mt-1 mb-1">
         <span className="section-kicker">WELCOME BACK</span>
         <h1>Good to see you.</h1>
         {error && <div className="alert alert-danger py-2">{error}</div>}
