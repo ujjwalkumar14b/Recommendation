@@ -34,14 +34,11 @@ export default function Register() {
         <h1>Make it personal.</h1>
         {error && <div className="alert alert-danger py-2">{error}</div>}
         <form onSubmit={submit}>
-          <label className="form-label" htmlFor="register-name">Your name</label>
-          <input id="register-name" className="form-control auth-input" name="name" autoComplete="name" value={form.name} onChange={update} minLength="2" maxLength="80" required />
-          <label className="form-label mt-3" htmlFor="register-email">Email address</label>
-          <input id="register-email" className="form-control auth-input" name="email" type="email" autoComplete="email" value={form.email} onChange={update} required />
-          <label className="form-label mt-3" htmlFor="register-customer-id">CustomerID</label>
-          <input id="register-customer-id" className="form-control auth-input" name="customerId" type="number" min="1" step="1" autoComplete="username" placeholder="Choose a unique number" value={form.customerId} onChange={update} required />
-          <label className="form-label mt-3" htmlFor="register-password">Password</label>
-          <input id="register-password" className="form-control auth-input" name="password" type="password" minLength="8" maxLength="128" autoComplete="new-password" value={form.password} onChange={update} required />
+          <input className="mt-3 form-control auth-input" type="text" name="name" autoComplete="name" value={form.name} onChange={update} placeholder="Enter your name" required />
+          <input className="mt-3 form-control auth-input" type="email" name="email" autoComplete="email" value={form.email} onChange={update} placeholder="Enter your email" required />
+          <input className="mt-3 form-control auth-input" type="number" name="customerId" autoComplete="username" value={form.customerId} onChange={update} placeholder="Choose a unique number" required />
+          <input className="mt-3 form-control auth-input" type="password" name="password" autoComplete="new-password" value={form.password} onChange={update} placeholder="Enter a password" minLength="8" required />
+          
           <button className="btn btn-dark btn-pill w-100 mt-4" disabled={busy}>
             {busy ? "Creating account…" : "Create account"} <i className="bi bi-arrow-right ms-2" />
           </button>
