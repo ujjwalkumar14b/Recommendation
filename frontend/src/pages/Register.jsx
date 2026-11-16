@@ -28,12 +28,10 @@ export default function Register() {
   }
 
   return (
-    <section className="auth-page container">
+    <section className="auth-page container text-center">
       <div className="auth-card">
-        <div className="auth-mark"><i className="bi bi-stars" /></div>
         <span className="section-kicker">JOIN PICKPERFECT</span>
         <h1>Make it personal.</h1>
-        <p>Create an account with your CustomerID to save your bag and check out.</p>
         {error && <div className="alert alert-danger py-2">{error}</div>}
         <form onSubmit={submit}>
           <label className="form-label" htmlFor="register-name">Your name</label>
@@ -50,11 +48,6 @@ export default function Register() {
         </form>
         <div className="auth-switch">Already have an account? <Link to="/login">Sign in</Link></div>
       </div>
-      <aside className="auth-aside">
-        <div className="auth-aside-art"><i className="bi bi-gift" /><span><i className="bi bi-stars" /> something lovely awaits</span></div>
-        <h2>Find your next<br />favourite thing.</h2>
-        <p>From thoughtful gifts to everyday pieces, let your next discovery find you.</p>
-      </aside>
     </section>
   );
 }
