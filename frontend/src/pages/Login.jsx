@@ -26,12 +26,10 @@ export default function Login() {
   }
 
   return (
-    <section className="auth-page container">
+    <section className="container text-center">
       <div className="auth-card">
-        <div className="auth-mark"><i className="bi bi-stars" /></div>
         <span className="section-kicker">WELCOME BACK</span>
         <h1>Good to see you.</h1>
-        <p>Sign in with your CustomerID to pick up where you left off.</p>
         {error && <div className="alert alert-danger py-2">{error}</div>}
         <form onSubmit={submit}>
           <label className="form-label" htmlFor="login-customer-id">CustomerID</label>
@@ -64,11 +62,6 @@ export default function Login() {
         </form>
         <div className="auth-switch">New to PickPerfect? <Link to="/register">Create an account</Link></div>
       </div>
-      <aside className="auth-aside">
-        <div className="auth-aside-art"><i className="bi bi-flower1" /><span><i className="bi bi-stars" /> a better kind of browsing</span></div>
-        <h2>Good picks.<br />No guesswork.</h2>
-        <p>Sign in to keep your bag close and make product recommendations more personal.</p>
-      </aside>
     </section>
   );
 }
