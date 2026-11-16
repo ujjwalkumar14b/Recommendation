@@ -106,30 +106,15 @@ export default function Navbar() {
           <div className="nav-actions d-flex align-items-center gap-2 ms-lg-3">
             {customer ? (
               <>
-                <span className="nav-greeting d-none d-xl-inline">
-                  Hi, {customer.name.split(" ")[0]}
-                </span>
-                <Link className="icon-link cart-link" to="/cart" aria-label="Shopping cart">
-                  <i className="bi bi-bag" />
-                  <span className="cart-count">{cart.itemCount || 0}</span>
-                </Link>
-                <button
-                  type="button"
-                  className="btn btn-outline-dark btn-sm rounded-pill px-3"
-                  onClick={() => { logout(); navigate("/"); }}
-                >
-                  Sign out
-                </button>
+                <span className="nav-greeting d-none d-xl-inline">Hi, {customer.name.split(" ")[0]}</span>
+                <Link className="icon-link cart-link" to="/cart">Cart: <span className="cart-count">{cart.itemCount || 0}</span></Link>
+                <button type="button" className="btn btn-link nav-login" onClick={() => { logout(); navigate("/"); }}>Sign out</button>
               </>
             ) : (
               <>
-                <Link className="icon-link" to="/cart" aria-label="Shopping cart">
-                  <i className="bi bi-bag" />
-                </Link>
+                <Link className="btn btn-link nav-login" to="/cart">Cart</Link>
                 <Link className="btn btn-link nav-login" to="/login">Log in</Link>
-                <Link className="btn btn-dark btn-sm rounded-pill px-3" to="/register">
-                  Create account
-                </Link>
+                <Link className="btn btn-link nav-login" to="/register">Register</Link>
               </>
             )}
           </div>
