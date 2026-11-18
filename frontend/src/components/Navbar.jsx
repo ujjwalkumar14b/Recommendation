@@ -107,7 +107,7 @@ export default function Navbar() {
             {customer ? (
               <>
                 <span className="nav-greeting d-none d-xl-inline">Hi, {customer.name.split(" ")[0]}</span>
-                <Link className="icon-link cart-link" to="/cart">Cart: <span className="cart-count">{cart.itemCount || 0}</span></Link>
+                <Link className="icon-link cart-link" to="/cart" aria-label="Shopping cart"><i className="bi bi-bag" /><span className="cart-count">{cart.itemCount || 0}</span></Link>
                 <button type="button" className="btn btn-link nav-login" onClick={() => { logout(); navigate("/"); }}>Sign out</button>
               </>
             ) : (
