@@ -2,9 +2,9 @@
 PickPerfect is ecommerce website which allow users to browse all products, register and login, recommend top-25 products based on searched product and its transaction history, and add product to cart and checkout. Recommendation is based on time aware popularity model, collaborative model and content-based model.
 
 ## Website Link
-Frontend: [https://recommendation-1-91vl.onrender.com](https://recommendation-1-91vl.onrender.com)
-Backend: [https://recommendation-backend-uas7.onrender.com](https://recommendation-backend-uas7.onrender.com)
-ML Model: [https://pickperfect-xy7l.onrender.com](https://pickperfect-xy7l.onrender.com)
+- Frontend: [https://recommendation-1-91vl.onrender.com](https://recommendation-1-91vl.onrender.com)
+- Backend: [https://recommendation-backend-uas7.onrender.com](https://recommendation-backend-uas7.onrender.com)
+- ML Model: [https://pickperfect-xy7l.onrender.com](https://pickperfect-xy7l.onrender.com)
 
 
 ## Architecture
