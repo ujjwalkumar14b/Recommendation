@@ -1,5 +1,11 @@
 # PickPerfect
-PickPerfect is MERN-based ecommerce website which allow users to browse all products, register and login, recommend top-25 products based on searched product and its transaction history, and add product to cart and checkout. Recommendation is based on time aware popularity model, collaborative model and content-based model.
+PickPerfect is ecommerce website which allow users to browse all products, register and login, recommend top-25 products based on searched product and its transaction history, and add product to cart and checkout. Recommendation is based on time aware popularity model, collaborative model and content-based model.
+
+## Website Link
+Frontend: [https://recommendation-1-91vl.onrender.com](https://recommendation-1-91vl.onrender.com)
+Backend: [https://recommendation-backend-uas7.onrender.com](https://recommendation-backend-uas7.onrender.com)
+ML Model: [https://pickperfect-xy7l.onrender.com](https://pickperfect-xy7l.onrender.com)
+
 
 ## Architecture
 - HomePage (Contains all products) 
@@ -38,16 +44,6 @@ npm install
 npm run dev
 ```
 
-## API overview
-Express (`http://localhost:5001/api`):
-
-- `POST /auth/register`
-- `POST /auth/login` 
-- `POST /recommendations`
-- `POST /cart/items`
-- `POST /orders`
-- `GET /auth/me`
-- `GET /products`
-- `GET /cart`
-- `PATCH /cart/items/:stockCode`
-- `DELETE /cart/items/:stockCode`
+## Author
+Ujjwal Kumar
+GitHub: [https://github.com/ujjwalkumar14b](https://github.com/ujjwalkumar14b)
