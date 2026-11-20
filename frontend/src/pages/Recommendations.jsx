@@ -32,14 +32,8 @@ export default function Recommendations() {
 
   return (
     <section className="recommend-page container">
-      <div className="breadcrumb-line"><Link to="/">Home</Link><i className="bi bi-chevron-right" /><span>Recommendations</span></div>
       <div className="recommend-intro">
-        <span className="section-kicker"><i className="bi bi-stars me-2" />PERSONALIZED DISCOVERY</span>
         <h1>Your next great find.</h1>
-        <p>
-          Inspired by <strong>{product || "your search"}</strong>. Each suggestion includes a clear
-          explanation of the signals that shaped its match.
-        </p>
       </div>
       {notice && <div className="toast-note"><i className="bi bi-check-circle me-2" />{notice}</div>}
       {loading && <div className="loading-state"><span className="spinner-border spinner-border-sm me-2" />Finding your best matches…</div>}
@@ -54,8 +48,8 @@ export default function Recommendations() {
       {!loading && data && (
         <>
           <div className="result-bar">
-            <div><strong>{data?.recommendations?.length ?? 0} recommendations</strong><span>Ranked by the hybrid recommendation model</span></div>
-            <span className="model-chip"><i className="bi bi-cpu me-1" /> HYBRID · TOP 25</span>
+            <div><strong>PERSONALIZED DISCOVERY FOR {product || "your search"}</strong></div>
+            <span className="model-chip"><i className="bi bi-cpu me-1" /> HYBRID MODEL · TOP 25</span>
           </div>
           {data?.recommendations?.length ? (
             <div className="row g-4">
