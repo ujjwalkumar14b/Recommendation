@@ -49,7 +49,6 @@ export default function ProductCard({ product, onAdded, recommendation = false }
   return (
     <article className="product-card h-100">
       <div className="product-art" style={{ "--product-hue": hue }}>
-        <span className="product-art-label">PICKPERFECT OBJECTS</span>
         <i className={`bi ${icons[hue % icons.length]} product-art-icon`} aria-hidden="true" />
         {recommendation && product.aiScore !== undefined && (
           <span className="match-pill"><i className="bi bi-stars" /> {product.aiScore}% match</span>
