@@ -32,9 +32,6 @@ export default function Recommendations() {
 
   return (
     <section className="recommend-page container">
-      <div className="recommend-intro">
-        <h1>Your next great find.</h1>
-      </div>
       {notice && <div className="toast-note"><i className="bi bi-check-circle me-2" />{notice}</div>}
       {loading && <div className="loading-state"><span className="spinner-border spinner-border-sm me-2" />Finding your best matches…</div>}
       {!loading && error && (
