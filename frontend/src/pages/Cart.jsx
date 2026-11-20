@@ -35,7 +35,7 @@ export default function Cart() {
 
   return (
     <section className="container bag-page">
-      <div className="page-title-row"><div className="text-center"><h1>Your bag contains {cart.itemCount || 0} products</h1></div></div>
+      <div className="page-title-row text-center"><h2>Your bag contains {cart.itemCount || 0} products.</h2></div>
       {error && <div className="alert alert-danger">{error}</div>}
       {actionError && <div className="alert alert-danger">{actionError}</div>}
       {cart?.items?.length ? (
